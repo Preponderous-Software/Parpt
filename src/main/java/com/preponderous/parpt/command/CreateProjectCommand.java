@@ -1,7 +1,10 @@
 package com.preponderous.parpt.command;
 
 import com.preponderous.parpt.service.ProjectService;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
 
+@ShellComponent
 public class CreateProjectCommand {
     private final ProjectService projectService;
 
@@ -9,6 +12,7 @@ public class CreateProjectCommand {
         this.projectService = projectService;
     }
 
+    @ShellMethod(key = "create", value = "Creates a new project with the given parameters.")
     public String execute(String projectName, String projectDescription, int priority, int complexity, int risk, int effort, int value) {
         // Validate input parameters
         if (projectName == null || projectName.isEmpty()) {
