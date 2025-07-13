@@ -15,7 +15,16 @@ public class ProjectService {
     }
 
     public void createProject(String name, String descriptionA, int i, int i1, int i2, int i3, int i4) {
-        throw new UnsupportedOperationException("This method is not implemented yet.");
+        Project project = Project.builder()
+                .name(name)
+                .description(descriptionA)
+                .impact(i)
+                .confidence(i1)
+                .ease(i2)
+                .reach(i3)
+                .effort(i4)
+                .build();
+        projectRepository.add(project);
     }
 
     public List<Project> getProjects() {

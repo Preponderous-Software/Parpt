@@ -17,4 +17,14 @@ public class ProjectRepository {
     public void clear() {
         projects.clear();
     }
+
+    public void add(Project project) {
+        if (project == null) {
+            throw new IllegalArgumentException("Project cannot be null");
+        }
+        if (projects.stream().anyMatch(p -> p.getName().equals(project.getName()))) {
+            throw new IllegalArgumentException("Project with the same name already exists");
+        }
+        projects.add(project);
+    }
 }
