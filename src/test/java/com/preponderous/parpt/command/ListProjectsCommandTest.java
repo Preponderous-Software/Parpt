@@ -37,7 +37,7 @@ class ListProjectsCommandTest {
         var result = listProjectsCommand.execute();
 
         // Then the result should be an empty list
-        assertTrue(result.isEmpty());
+        assertTrue(result.contains("No projects found."));
     }
 
     @Test
@@ -50,8 +50,8 @@ class ListProjectsCommandTest {
         var result = listProjectsCommand.execute();
 
         // Then the result should contain the projects
-        assertTrue(result.size() >= 2);
-        assertTrue(result.stream().anyMatch(p -> p.getName().equals("Project A")));
-        assertTrue(result.stream().anyMatch(p -> p.getName().equals("Project B")));
+        assertTrue(result.contains("Projects:"));
+        assertTrue(result.contains("Project A: Description A"));
+        assertTrue(result.contains("Project B: Description B"));
     }
 }
