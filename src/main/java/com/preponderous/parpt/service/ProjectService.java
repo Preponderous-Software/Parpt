@@ -14,15 +14,15 @@ public class ProjectService {
         this.projectRepository = projectRepository;
     }
 
-    public void createProject(String name, String descriptionA, int i, int i1, int i2, int i3, int i4) {
+    public void createProject(String name, String description, int impact, int confidence, int ease, int reach, int effort) {
         Project project = Project.builder()
                 .name(name)
-                .description(descriptionA)
-                .impact(i)
-                .confidence(i1)
-                .ease(i2)
-                .reach(i3)
-                .effort(i4)
+                .description(description)
+                .impact(impact)
+                .confidence(confidence)
+                .ease(ease)
+                .reach(reach)
+                .effort(effort)
                 .build();
         projectRepository.add(project);
     }
