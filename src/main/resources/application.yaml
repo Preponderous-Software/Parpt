@@ -1,3 +1,8 @@
 spring:
   application:
     name: Parpt
+  shell:
+    interactive:
+      enabled: true
+    history:
+        enabled: true
