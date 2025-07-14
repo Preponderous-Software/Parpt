@@ -1,6 +1,8 @@
 package com.preponderous.parpt.command;
 
+import com.preponderous.parpt.domain.Project;
 import com.preponderous.parpt.repo.ProjectRepository;
+import com.preponderous.parpt.score.ScoreCalculator;
 import com.preponderous.parpt.service.ProjectService;
 import com.preponderous.parpt.util.ConsoleInputProvider;
 import org.springframework.shell.standard.ShellComponent;
@@ -11,6 +13,7 @@ import org.springframework.shell.standard.ShellOption;
 public class CreateProjectCommand {
     private final ProjectService projectService;
     private final ConsoleInputProvider inputProvider;
+    private final ScoreCalculator scoreCalculator;
 
     protected static final String PROJECT_NAME_PROMPT = "What is the name of the project? ";
     protected static final String PROJECT_DESCRIPTION_PROMPT = "How would you describe the project? ";
@@ -20,9 +23,10 @@ public class CreateProjectCommand {
     protected static final String PROJECT_REACH_PROMPT = "On a scale of 1 to 5, how many users or customers will this project impact? ";
     protected static final String PROJECT_EFFORT_PROMPT = "On a scale of 1 to 5, how much effort is required for this project? (1 being minimal, 5 being significant) ";
 
-    public CreateProjectCommand(ProjectService projectService, ConsoleInputProvider inputProvider) {
+    public CreateProjectCommand(ProjectService projectService, ConsoleInputProvider inputProvider, ScoreCalculator scoreCalculator) {
         this.projectService = projectService;
         this.inputProvider = inputProvider;
+        this.scoreCalculator = scoreCalculator;
     }
 
     @ShellMethod(key = "create", value = "Creates a new project with the given parameters.")
@@ -91,13 +95,18 @@ public class CreateProjectCommand {
         }
 
         // Create the project using the service
+        Project project;
         try {
-            projectService.createProject(projectName, projectDescription, impact, confidence, ease, reach, effort);
+            project = projectService.createProject(projectName, projectDescription, impact, confidence, ease, reach, effort);
         } catch (ProjectRepository.NameTakenException e) {
             return "Project name '" + projectName + "' is already taken. Please choose a different name.";
         } catch (Exception e) {
             return "An error occurred while creating the project: " + e.getMessage();
         }
-        return "Project created successfully: " + projectName;
+
+        // Calculate scores
+        double iceScore = scoreCalculator.ice(project);
+        double riceScore = scoreCalculator.rice(project);
+        return String.format("Project created successfully: %s\nICE Score: %.2f\nRICE Score: %.2f", projectName, iceScore, riceScore);
     }
 }
