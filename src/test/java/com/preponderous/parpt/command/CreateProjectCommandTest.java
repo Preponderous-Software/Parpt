@@ -1,5 +1,6 @@
 package com.preponderous.parpt.command;
 
+import com.preponderous.parpt.repo.ProjectRepository;
 import com.preponderous.parpt.service.ProjectService;
 import com.preponderous.parpt.util.ConsoleInputProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +32,7 @@ class CreateProjectCommandTest {
     }
 
     @Test
-    void testExecuteWithAllArgumentsProvided() {
+    void testExecuteWithAllArgumentsProvided() throws ProjectRepository.NameTakenException {
         // Test when all arguments are provided directly
         String result = command.execute(
                 "Test Project",
@@ -52,7 +53,7 @@ class CreateProjectCommandTest {
     }
 
     @Test
-    void testValidationFailsWithInvalidScores() {
+    void testValidationFailsWithInvalidScores() throws ProjectRepository.NameTakenException {
         // Test validation with out-of-range scores
         String result = command.execute(
                 "Test Project",
@@ -70,7 +71,7 @@ class CreateProjectCommandTest {
     }
 
     @Test
-    void testInteractiveInputWithAllFieldsMissing() {
+    void testInteractiveInputWithAllFieldsMissing() throws ProjectRepository.NameTakenException {
         // Setup console mock responses
         when(inputProvider.readLine("Project name: ")).thenReturn("Interactive Project");
         when(inputProvider.readLine("Project description: ")).thenReturn("Interactive Description");
@@ -103,7 +104,7 @@ class CreateProjectCommandTest {
     }
 
     @Test
-    void testInteractiveInputWithPartialArgumentsProvided() {
+    void testInteractiveInputWithPartialArgumentsProvided() throws ProjectRepository.NameTakenException {
         // Setup console mock responses for missing fields
         when(inputProvider.readLine("Project description: ")).thenReturn("Interactive Description");
         when(inputProvider.readLine("Ease (1-5): ")).thenReturn("3");
@@ -140,7 +141,7 @@ class CreateProjectCommandTest {
     }
 
     @Test
-    void testInteractiveInputWithInvalidNumericInput() {
+    void testInteractiveInputWithInvalidNumericInput() throws ProjectRepository.NameTakenException {
         // Setup console to return invalid input for Impact
         when(inputProvider.readLine("Project name: ")).thenReturn("Test Project");
         when(inputProvider.readLine("Project description: ")).thenReturn("Test Description");

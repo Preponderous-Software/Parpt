@@ -18,13 +18,16 @@ public class ProjectRepository {
         projects.clear();
     }
 
-    public void add(Project project) {
-        if (project == null) {
-            throw new IllegalArgumentException("Project cannot be null");
-        }
+    public void add(Project project) throws NameTakenException {
         if (projects.stream().anyMatch(p -> p.getName().equals(project.getName()))) {
-            throw new IllegalArgumentException("Project with the same name already exists");
+            throw new NameTakenException("Project with the same name already exists");
         }
         projects.add(project);
+    }
+
+    public static class NameTakenException extends Exception {
+        public NameTakenException(String message) {
+            super(message);
+        }
     }
 }

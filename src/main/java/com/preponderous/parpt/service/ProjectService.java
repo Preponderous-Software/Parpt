@@ -14,7 +14,7 @@ public class ProjectService {
         this.projectRepository = projectRepository;
     }
 
-    public void createProject(String name, String description, int impact, int confidence, int ease, int reach, int effort) {
+    public void createProject(String name, String description, int impact, int confidence, int ease, int reach, int effort) throws ProjectRepository.NameTakenException {
         Project project = Project.builder()
                 .name(name)
                 .description(description)

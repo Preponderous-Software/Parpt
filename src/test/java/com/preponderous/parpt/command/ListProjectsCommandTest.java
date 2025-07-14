@@ -41,7 +41,7 @@ class ListProjectsCommandTest {
     }
 
     @Test
-    void shouldReturnListOfProjectsWhenProjectsExist() {
+    void shouldReturnListOfProjectsWhenProjectsExist() throws ProjectRepository.NameTakenException {
         // Given some projects exist
         projectService.createProject("Project A", "Description A", 5, 4, 3, 2, 1);
         projectService.createProject("Project B", "Description B", 4, 3, 2, 1, 5);

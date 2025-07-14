@@ -1,5 +1,6 @@
 package com.preponderous.parpt.command;
 
+import com.preponderous.parpt.repo.ProjectRepository;
 import com.preponderous.parpt.service.ProjectService;
 import com.preponderous.parpt.util.ConsoleInputProvider;
 import org.springframework.shell.standard.ShellComponent;
@@ -82,7 +83,13 @@ public class CreateProjectCommand {
         }
 
         // Create the project using the service
-        projectService.createProject(projectName, projectDescription, impact, confidence, ease, reach, effort);
+        try {
+            projectService.createProject(projectName, projectDescription, impact, confidence, ease, reach, effort);
+        } catch (ProjectRepository.NameTakenException e) {
+            return "Project name '" + projectName + "' is already taken. Please choose a different name.";
+        } catch (Exception e) {
+            return "An error occurred while creating the project: " + e.getMessage();
+        }
         return "Project created successfully: " + projectName;
     }
 }
