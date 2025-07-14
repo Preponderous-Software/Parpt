@@ -17,6 +17,7 @@ public class CreateProjectCommand {
 
     protected static final String PROJECT_NAME_PROMPT = "What is the name of the project? ";
     protected static final String PROJECT_DESCRIPTION_PROMPT = "How would you describe the project? ";
+    // TODO: consider using multiple prompts for each score to allow for more detailed input
     protected static final String PROJECT_IMPACT_PROMPT = "On a scale of 1 to 5, how much potential benefit or revenue impact does this project have? ";
     protected static final String PROJECT_CONFIDENCE_PROMPT = "On a scale of 1 to 5, how confident are you in the estimates for this project? ";
     protected static final String PROJECT_EASE_PROMPT = "On a scale of 1 to 5, how easy or quick is this project to implement? ";
