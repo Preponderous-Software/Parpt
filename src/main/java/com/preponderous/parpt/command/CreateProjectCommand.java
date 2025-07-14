@@ -30,9 +30,9 @@ public class CreateProjectCommand {
             @ShellOption(value = {"-n", "--name"}, help = "The name of the project", defaultValue = ShellOption.NULL) String projectName,
             @ShellOption(value = {"-d", "--description"}, help = "Description of the project", defaultValue = ShellOption.NULL) String projectDescription,
             @ShellOption(value = {"-i", "--impact"}, help = "Impact score (1-5)", defaultValue = ShellOption.NULL) Integer impact,
-            @ShellOption(value = {"-c", "--confidence"}, help = "Complexity score (1-5)", defaultValue = ShellOption.NULL) Integer confidence,
-            @ShellOption(value = {"-e", "--ease"}, help = "Risk score (1-5)", defaultValue = ShellOption.NULL) Integer ease,
-            @ShellOption(value = {"-r", "--reach"}, help = "Effort score (1-5)", defaultValue = ShellOption.NULL) Integer reach,
+            @ShellOption(value = {"-c", "--confidence"}, help = "Confidence score (1-5)", defaultValue = ShellOption.NULL) Integer confidence,
+            @ShellOption(value = {"-e", "--ease"}, help = "Ease score (1-5)", defaultValue = ShellOption.NULL) Integer ease,
+            @ShellOption(value = {"-r", "--reach"}, help = "Reach score (1-5)", defaultValue = ShellOption.NULL) Integer reach,
             @ShellOption(value = {"-f", "--effort"}, help = "Effort score (1-5)", defaultValue = ShellOption.NULL) Integer effort
     ) {
         // Interactive input if parameters are not provided
