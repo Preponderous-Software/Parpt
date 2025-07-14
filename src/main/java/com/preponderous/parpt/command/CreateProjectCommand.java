@@ -12,6 +12,14 @@ public class CreateProjectCommand {
     private final ProjectService projectService;
     private final ConsoleInputProvider inputProvider;
 
+    protected static final String PROJECT_NAME_PROMPT = "What is the name of the project? ";
+    protected static final String PROJECT_DESCRIPTION_PROMPT = "How would you describe the project? ";
+    protected static final String PROJECT_IMPACT_PROMPT = "On a scale of 1 to 5, how impactful is this project? ";
+    protected static final String PROJECT_CONFIDENCE_PROMPT = "On a scale of 1 to 5, how confident are you in the project's success? ";
+    protected static final String PROJECT_EASE_PROMPT = "On a scale of 1 to 5, how easy is it to implement this project? ";
+    protected static final String PROJECT_REACH_PROMPT = "On a scale of 1 to 5, how far-reaching is the project's impact? ";
+    protected static final String PROJECT_EFFORT_PROMPT = "On a scale of 1 to 5, how much effort is required for this project? ";
+
     public CreateProjectCommand(ProjectService projectService, ConsoleInputProvider inputProvider) {
         this.projectService = projectService;
         this.inputProvider = inputProvider;
@@ -29,42 +37,42 @@ public class CreateProjectCommand {
     ) {
         // Interactive input if parameters are not provided
         if (projectName == null) {
-            projectName = inputProvider.readLine("Project name: ");
+            projectName = inputProvider.readLine(PROJECT_NAME_PROMPT);
         }
         if (projectDescription == null) {
-            projectDescription = inputProvider.readLine("Project description: ");
+            projectDescription = inputProvider.readLine(PROJECT_DESCRIPTION_PROMPT);
         }
         if (impact == null) {
             try {
-                impact = Integer.parseInt(inputProvider.readLine("Impact (1-5): "));
+                impact = Integer.parseInt(inputProvider.readLine(PROJECT_IMPACT_PROMPT));
             } catch (NumberFormatException e) {
                 return "Invalid impact value. Please enter a number between 1 and 5.";
             }
         }
         if (confidence == null) {
             try {
-                confidence = Integer.parseInt(inputProvider.readLine("Confidence (1-5): "));
+                confidence = Integer.parseInt(inputProvider.readLine(PROJECT_CONFIDENCE_PROMPT));
             } catch (NumberFormatException e) {
                 return "Invalid confidence value. Please enter a number between 1 and 5.";
             }
         }
         if (ease == null) {
             try {
-                ease = Integer.parseInt(inputProvider.readLine("Ease (1-5): "));
+                ease = Integer.parseInt(inputProvider.readLine(PROJECT_EASE_PROMPT));
             } catch (NumberFormatException e) {
                 return "Invalid ease value. Please enter a number between 1 and 5.";
             }
         }
         if (reach == null) {
             try {
-                reach = Integer.parseInt(inputProvider.readLine("Reach (1-5): "));
+                reach = Integer.parseInt(inputProvider.readLine(PROJECT_REACH_PROMPT));
             } catch (NumberFormatException e) {
                 return "Invalid reach value. Please enter a number between 1 and 5.";
             }
         }
         if (effort == null) {
             try {
-                effort = Integer.parseInt(inputProvider.readLine("Effort (1-5): "));
+                effort = Integer.parseInt(inputProvider.readLine(PROJECT_EFFORT_PROMPT));
             } catch (NumberFormatException e) {
                 return "Invalid effort value. Please enter a number between 1 and 5.";
             }

@@ -73,25 +73,25 @@ class CreateProjectCommandTest {
     @Test
     void testInteractiveInputWithAllFieldsMissing() throws ProjectRepository.NameTakenException {
         // Setup console mock responses
-        when(inputProvider.readLine("Project name: ")).thenReturn("Interactive Project");
-        when(inputProvider.readLine("Project description: ")).thenReturn("Interactive Description");
-        when(inputProvider.readLine("Impact (1-5): ")).thenReturn("3");
-        when(inputProvider.readLine("Confidence (1-5): ")).thenReturn("4");
-        when(inputProvider.readLine("Ease (1-5): ")).thenReturn("5");
-        when(inputProvider.readLine("Reach (1-5): ")).thenReturn("3");
-        when(inputProvider.readLine("Effort (1-5): ")).thenReturn("2");
+        when(inputProvider.readLine(CreateProjectCommand.PROJECT_NAME_PROMPT)).thenReturn("Interactive Project");
+        when(inputProvider.readLine(CreateProjectCommand.PROJECT_DESCRIPTION_PROMPT)).thenReturn("Interactive Description");
+        when(inputProvider.readLine(CreateProjectCommand.PROJECT_IMPACT_PROMPT)).thenReturn("3");
+        when(inputProvider.readLine(CreateProjectCommand.PROJECT_CONFIDENCE_PROMPT)).thenReturn("4");
+        when(inputProvider.readLine(CreateProjectCommand.PROJECT_EASE_PROMPT)).thenReturn("5");
+        when(inputProvider.readLine(CreateProjectCommand.PROJECT_REACH_PROMPT)).thenReturn("3");
+        when(inputProvider.readLine(CreateProjectCommand.PROJECT_EFFORT_PROMPT)).thenReturn("2");
 
         // Call execute with all null arguments to trigger interactive mode
         String result = command.execute(null, null, null, null, null, null, null);
 
         // Verify all prompts were called
-        verify(inputProvider).readLine("Project name: ");
-        verify(inputProvider).readLine("Project description: ");
-        verify(inputProvider).readLine("Impact (1-5): ");
-        verify(inputProvider).readLine("Confidence (1-5): ");
-        verify(inputProvider).readLine("Ease (1-5): ");
-        verify(inputProvider).readLine("Reach (1-5): ");
-        verify(inputProvider).readLine("Effort (1-5): ");
+        verify(inputProvider).readLine(CreateProjectCommand.PROJECT_NAME_PROMPT);
+        verify(inputProvider).readLine(CreateProjectCommand.PROJECT_DESCRIPTION_PROMPT);
+        verify(inputProvider).readLine(CreateProjectCommand.PROJECT_IMPACT_PROMPT);
+        verify(inputProvider).readLine(CreateProjectCommand.PROJECT_CONFIDENCE_PROMPT);
+        verify(inputProvider).readLine(CreateProjectCommand.PROJECT_EASE_PROMPT);
+        verify(inputProvider).readLine(CreateProjectCommand.PROJECT_REACH_PROMPT);
+        verify(inputProvider).readLine(CreateProjectCommand.PROJECT_EFFORT_PROMPT);
 
         // Verify service was called with the expected values
         verify(projectService).createProject(
@@ -106,9 +106,9 @@ class CreateProjectCommandTest {
     @Test
     void testInteractiveInputWithPartialArgumentsProvided() throws ProjectRepository.NameTakenException {
         // Setup console mock responses for missing fields
-        when(inputProvider.readLine("Project description: ")).thenReturn("Interactive Description");
-        when(inputProvider.readLine("Ease (1-5): ")).thenReturn("3");
-        when(inputProvider.readLine("Effort (1-5): ")).thenReturn("4");
+        when(inputProvider.readLine(CreateProjectCommand.PROJECT_DESCRIPTION_PROMPT)).thenReturn("Interactive Description");
+        when(inputProvider.readLine(CreateProjectCommand.PROJECT_EASE_PROMPT)).thenReturn("3");
+        when(inputProvider.readLine(CreateProjectCommand.PROJECT_EFFORT_PROMPT)).thenReturn("4");
 
         // Call execute with some arguments provided and others null
         String result = command.execute(
@@ -122,13 +122,13 @@ class CreateProjectCommandTest {
         );
 
         // Verify only the missing field prompts were called
-        verify(inputProvider, never()).readLine("Project name: ");
-        verify(inputProvider).readLine("Project description: ");
-        verify(inputProvider, never()).readLine("Impact (1-5): ");
-        verify(inputProvider, never()).readLine("Confidence (1-5): ");
-        verify(inputProvider).readLine("Ease (1-5): ");
-        verify(inputProvider, never()).readLine("Reach (1-5): ");
-        verify(inputProvider).readLine("Effort (1-5): ");
+        verify(inputProvider, never()).readLine(CreateProjectCommand.PROJECT_NAME_PROMPT);
+        verify(inputProvider).readLine(CreateProjectCommand.PROJECT_DESCRIPTION_PROMPT);
+        verify(inputProvider, never()).readLine(CreateProjectCommand.PROJECT_IMPACT_PROMPT);
+        verify(inputProvider, never()).readLine(CreateProjectCommand.PROJECT_CONFIDENCE_PROMPT);
+        verify(inputProvider).readLine(CreateProjectCommand.PROJECT_EASE_PROMPT);
+        verify(inputProvider, never()).readLine(CreateProjectCommand.PROJECT_REACH_PROMPT);
+        verify(inputProvider).readLine(CreateProjectCommand.PROJECT_EFFORT_PROMPT);
 
         // Verify service was called with the expected values
         verify(projectService).createProject(
@@ -143,9 +143,9 @@ class CreateProjectCommandTest {
     @Test
     void testInteractiveInputWithInvalidNumericInput() throws ProjectRepository.NameTakenException {
         // Setup console to return invalid input for Impact
-        when(inputProvider.readLine("Project name: ")).thenReturn("Test Project");
-        when(inputProvider.readLine("Project description: ")).thenReturn("Test Description");
-        when(inputProvider.readLine("Impact (1-5): ")).thenReturn("not a number");
+        when(inputProvider.readLine(CreateProjectCommand.PROJECT_NAME_PROMPT)).thenReturn("Interactive Project");
+        when(inputProvider.readLine(CreateProjectCommand.PROJECT_DESCRIPTION_PROMPT)).thenReturn("Interactive Description");
+        when(inputProvider.readLine(CreateProjectCommand.PROJECT_IMPACT_PROMPT)).thenReturn("invalid");
 
         // Call execute with null arguments to trigger interactive mode
         String result = command.execute(null, null, null, null, null, null, null);
