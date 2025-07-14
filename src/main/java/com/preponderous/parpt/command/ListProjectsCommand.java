@@ -1,6 +1,7 @@
 package com.preponderous.parpt.command;
 
 import com.preponderous.parpt.domain.Project;
+import com.preponderous.parpt.score.ScoreCalculator;
 import com.preponderous.parpt.service.ProjectService;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -11,9 +12,11 @@ import java.util.List;
 public class ListProjectsCommand {
 
     private final ProjectService projectService;
+    private final ScoreCalculator scoreCalculator;
 
-    public ListProjectsCommand(ProjectService projectService) {
+    public ListProjectsCommand(ProjectService projectService, ScoreCalculator scoreCalculator) {
         this.projectService = projectService;
+        this.scoreCalculator = scoreCalculator;
     }
 
     @ShellMethod(key = "list", value = "Lists all projects.")
@@ -26,7 +29,7 @@ public class ListProjectsCommand {
 
         StringBuilder result = new StringBuilder("Projects:\n");
         for (Project project : projects) {
-            result.append(String.format("- %s: %s\n", project.getName(), project.getDescription()));
+            result.append(String.format("- %s: %s (ICE: %s | RICE: %s)\n", project.getName(), project.getDescription(), scoreCalculator.ice(project), scoreCalculator.rice(project)));
         }
 
         return result.toString();

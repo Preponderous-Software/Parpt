@@ -1,6 +1,7 @@
 package com.preponderous.parpt.command;
 
 import com.preponderous.parpt.repo.ProjectRepository;
+import com.preponderous.parpt.score.ScoreCalculator;
 import com.preponderous.parpt.service.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,10 +21,13 @@ class ListProjectsCommandTest {
     @Autowired
     ProjectRepository projectRepository;
 
+    @Autowired
+    ScoreCalculator scoreCalculator;
+
     @BeforeEach
     void setUp() {
         // Initialize the command with the project service
-        listProjectsCommand = new ListProjectsCommand(projectService);
+        listProjectsCommand = new ListProjectsCommand(projectService, scoreCalculator);
 
         // Clear any existing projects in the repository before each test
         projectRepository.clear();
