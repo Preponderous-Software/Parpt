@@ -14,11 +14,11 @@ public class CreateProjectCommand {
 
     protected static final String PROJECT_NAME_PROMPT = "What is the name of the project? ";
     protected static final String PROJECT_DESCRIPTION_PROMPT = "How would you describe the project? ";
-    protected static final String PROJECT_IMPACT_PROMPT = "On a scale of 1 to 5, how impactful is this project? ";
-    protected static final String PROJECT_CONFIDENCE_PROMPT = "On a scale of 1 to 5, how confident are you in the project's success? ";
-    protected static final String PROJECT_EASE_PROMPT = "On a scale of 1 to 5, how easy is it to implement this project? ";
-    protected static final String PROJECT_REACH_PROMPT = "On a scale of 1 to 5, how far-reaching is the project's impact? ";
-    protected static final String PROJECT_EFFORT_PROMPT = "On a scale of 1 to 5, how much effort is required for this project? ";
+    protected static final String PROJECT_IMPACT_PROMPT = "On a scale of 1 to 5, how much potential benefit or revenue impact does this project have? ";
+    protected static final String PROJECT_CONFIDENCE_PROMPT = "On a scale of 1 to 5, how confident are you in the estimates for this project? ";
+    protected static final String PROJECT_EASE_PROMPT = "On a scale of 1 to 5, how easy or quick is this project to implement? ";
+    protected static final String PROJECT_REACH_PROMPT = "On a scale of 1 to 5, how many users or customers will this project impact? ";
+    protected static final String PROJECT_EFFORT_PROMPT = "On a scale of 1 to 5, how much effort is required for this project? (1 being minimal, 5 being significant) ";
 
     public CreateProjectCommand(ProjectService projectService, ConsoleInputProvider inputProvider) {
         this.projectService = projectService;
