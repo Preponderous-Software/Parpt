@@ -31,4 +31,8 @@ public class ProjectService {
     public List<Project> getProjects() {
         return projectRepository.findAll();
     }
+
+    public Project getProject(String projectName) throws ProjectRepository.ProjectNotFoundException {
+        return projectRepository.findByName(projectName);
+    }
 }
