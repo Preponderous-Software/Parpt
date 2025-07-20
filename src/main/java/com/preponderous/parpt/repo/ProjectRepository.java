@@ -25,8 +25,25 @@ public class ProjectRepository {
         projects.add(project);
     }
 
+    public Project findByName(String projectName) throws ProjectNotFoundException {
+        Project retrievedProject =  projects.stream()
+                .filter(project -> project.getName().equals(projectName))
+                .findFirst()
+                .orElse(null);
+        if (retrievedProject == null) {
+            throw new ProjectNotFoundException("Project not found: " + projectName);
+        }
+        return retrievedProject;
+    }
+
     public static class NameTakenException extends Exception {
         public NameTakenException(String message) {
+            super(message);
+        }
+    }
+
+    public static class ProjectNotFoundException extends Exception {
+        public ProjectNotFoundException(String message) {
             super(message);
         }
     }
