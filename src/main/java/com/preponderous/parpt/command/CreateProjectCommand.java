@@ -64,17 +64,17 @@ public class CreateProjectCommand {
         this.scoreCalculator = scoreCalculator;
     }
 
-    private int getAverageScore(String[] prompts) {
+    private int getAverageScore(String[] prompts) throws InvalidScoreException {
         int total = 0;
         for (String prompt : prompts) {
             try {
                 int score = Integer.parseInt(inputProvider.readLine(prompt));
                 if (score < 1 || score > 5) {
-                    throw new NumberFormatException();
+                    throw new InvalidScoreException("Invalid score. Must be between 1 and 5.");
                 }
                 total += score;
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid score. Please enter a number between 1 and 5.");
+                throw new InvalidScoreException("Invalid score. Must be a number between 1 and 5.");
             }
         }
         return Math.round((float) total / prompts.length);
@@ -91,58 +91,100 @@ public class CreateProjectCommand {
             @ShellOption(value = {"-r", "--reach"}, help = "Reach score (1-5)", defaultValue = ShellOption.NULL) Integer reach,
             @ShellOption(value = {"-f", "--effort"}, help = "Effort score (1-5)", defaultValue = ShellOption.NULL) Integer effort
     ) {
+        // Interactive input if parameters are not provided
+        if (projectName == null) {
+            projectName = inputProvider.readLine(PROJECT_NAME_PROMPT);
+        }
+        if (projectDescription == null) {
+            projectDescription = inputProvider.readLine(PROJECT_DESCRIPTION_PROMPT);
+        }
+        if (impact == null) {
+            boolean continueLoop = true;
+            while (continueLoop) {
+                try {
+                    impact = getAverageScore(PROJECT_IMPACT_PROMPTS);
+                    continueLoop = false;
+                } catch (InvalidScoreException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+        if (confidence == null) {
+            boolean continueLoop = true;
+            while (continueLoop) {
+                try {
+                    confidence = getAverageScore(PROJECT_CONFIDENCE_PROMPTS);
+                    continueLoop = false;
+                } catch (InvalidScoreException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+        if (ease == null) {
+            boolean continueLoop = true;
+            while (continueLoop) {
+                try {
+                    ease = getAverageScore(PROJECT_EASE_PROMPTS);
+                    continueLoop = false;
+                } catch (InvalidScoreException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+        if (reach == null) {
+            boolean continueLoop = true;
+            while (continueLoop) {
+                try {
+                    reach = getAverageScore(PROJECT_REACH_PROMPTS);
+                    continueLoop = false;
+                } catch (InvalidScoreException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+        if (effort == null) {
+            boolean continueLoop = true;
+            while (continueLoop) {
+                try {
+                    effort = getAverageScore(PROJECT_EFFORT_PROMPTS);
+                    continueLoop = false;
+                } catch (InvalidScoreException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+
+        // Validate input parameters
+        if (projectName == null || projectName.isEmpty()) {
+            return "Project name cannot be empty.";
+        }
+        if (projectDescription == null || projectDescription.isEmpty()) {
+            return "Project description cannot be empty.";
+        }
+        if (impact < 1 || impact > 5 || confidence < 1 || confidence > 5 ||
+                ease < 1 || ease > 5 || reach < 1 || reach > 5 || effort < 1 || effort > 5) {
+            return "All scores must be between 1 and 5.";
+        }
+
+        // Create the project using the service
+        Project project;
         try {
-            // Interactive input if parameters are not provided
-            if (projectName == null) {
-                projectName = inputProvider.readLine(PROJECT_NAME_PROMPT);
-            }
-            if (projectDescription == null) {
-                projectDescription = inputProvider.readLine(PROJECT_DESCRIPTION_PROMPT);
-            }
-            if (impact == null) {
-                impact = getAverageScore(PROJECT_IMPACT_PROMPTS);
-            }
-            if (confidence == null) {
-                confidence = getAverageScore(PROJECT_CONFIDENCE_PROMPTS);
-            }
-            if (ease == null) {
-                ease = getAverageScore(PROJECT_EASE_PROMPTS);
-            }
-            if (reach == null) {
-                reach = getAverageScore(PROJECT_REACH_PROMPTS);
-            }
-            if (effort == null) {
-                effort = getAverageScore(PROJECT_EFFORT_PROMPTS);
-            }
+            project = projectService.createProject(projectName, projectDescription, impact, confidence, ease, reach, effort);
+        } catch (ProjectRepository.NameTakenException e) {
+            return "Project name '" + projectName + "' is already taken. Please choose a different name.";
+        } catch (Exception e) {
+            return "An error occurred while creating the project: " + e.getMessage();
+        }
 
-            // Validate input parameters
-            if (projectName == null || projectName.isEmpty()) {
-                return "Project name cannot be empty.";
-            }
-            if (projectDescription == null || projectDescription.isEmpty()) {
-                return "Project description cannot be empty.";
-            }
-            if (impact < 1 || impact > 5 || confidence < 1 || confidence > 5 ||
-                    ease < 1 || ease > 5 || reach < 1 || reach > 5 || effort < 1 || effort > 5) {
-                return "All scores must be between 1 and 5.";
-            }
+        // Calculate scores
+        double iceScore = scoreCalculator.ice(project);
+        double riceScore = scoreCalculator.rice(project);
+        return String.format("Project created successfully: %s\nICE Score: %.2f\nRICE Score: %.2f", projectName, iceScore, riceScore);
+    }
 
-            // Create the project using the service
-            Project project;
-            try {
-                project = projectService.createProject(projectName, projectDescription, impact, confidence, ease, reach, effort);
-            } catch (ProjectRepository.NameTakenException e) {
-                return "Project name '" + projectName + "' is already taken. Please choose a different name.";
-            } catch (Exception e) {
-                return "An error occurred while creating the project: " + e.getMessage();
-            }
-
-            // Calculate scores
-            double iceScore = scoreCalculator.ice(project);
-            double riceScore = scoreCalculator.rice(project);
-            return String.format("Project created successfully: %s\nICE Score: %.2f\nRICE Score: %.2f", projectName, iceScore, riceScore);
-        } catch (IllegalArgumentException e) {
-            return e.getMessage();
+    public class InvalidScoreException extends Exception {
+        public InvalidScoreException(String message) {
+            super(message);
         }
     }
 }
