@@ -18,17 +18,68 @@ public class CreateProjectCommand {
     protected static final String PROJECT_NAME_PROMPT = "What is the name of the project? ";
     protected static final String PROJECT_DESCRIPTION_PROMPT = "How would you describe the project? ";
     // TODO: consider using multiple prompts for each score to allow for more detailed input
-    protected static final String PROJECT_IMPACT_PROMPT = "On a scale of 1 to 5, how much potential benefit or revenue impact does this project have? ";
-    protected static final String PROJECT_CONFIDENCE_PROMPT = "On a scale of 1 to 5, how confident are you in the estimates for this project? ";
-    protected static final String PROJECT_EASE_PROMPT = "On a scale of 1 to 5, how easy or quick is this project to implement? ";
-    protected static final String PROJECT_REACH_PROMPT = "On a scale of 1 to 5, how many users or customers will this project impact? ";
-    protected static final String PROJECT_EFFORT_PROMPT = "On a scale of 1 to 5, how much effort is required for this project? (1 being minimal, 5 being significant) ";
+    // Impact prompts - focusing on benefits
+    protected static final String[] PROJECT_IMPACT_PROMPTS = {
+            "Will this make/save money? (1=tiny impact, 5=huge impact) ",
+            "Will this make users happier? (1=slightly, 5=dramatically) ",
+            "Will this give us an edge over competitors? (1=small edge, 5=game-changing) ",
+            "Will this solve any major problems? (1=minor issues, 5=critical problems) "
+    };
+
+    // Confidence prompts - how sure are we?
+    protected static final String[] PROJECT_CONFIDENCE_PROMPTS = {
+            "Do we understand what needs to be built? (1=very unclear, 5=crystal clear) ",
+            "Have we done something similar before? (1=never, 5=many times) ",
+            "Do we have the right skills in the team? (1=missing key skills, 5=perfect fit) ",
+            "Are the requirements likely to change? (1=constantly changing, 5=very stable) "
+    };
+
+    // Ease prompts - how simple is it?
+    protected static final String[] PROJECT_EASE_PROMPTS = {
+            "How straightforward is this to build? (1=very complex, 5=very simple) ",
+            "Do we have the tools we need? (1=need many new tools, 5=have everything) ",
+            "Can we reuse existing code/systems? (1=start from scratch, 5=mostly reusable) ",
+            "How easy is it to test? (1=very difficult, 5=very easy) "
+    };
+
+    // Reach prompts - who will it affect?
+    protected static final String[] PROJECT_REACH_PROMPTS = {
+            "How many users will this help? (1=very few, 5=almost all) ",
+            "Will this attract new users? (1=unlikely, 5=definitely) ",
+            "Will users notice this change? (1=barely noticeable, 5=very visible) ",
+            "How often will users benefit from this? (1=rarely, 5=daily) "
+    };
+
+    // Effort prompts - what will it take?
+    protected static final String[] PROJECT_EFFORT_PROMPTS = {
+            "How long will this take to build? (1=very long, 5=very quick) ",
+            "How many people need to be involved? (1=many teams, 5=just a few people) ",
+            "Will this be hard to maintain? (1=very difficult, 5=very easy) ",
+            "Does this need ongoing work? (1=lots of upkeep, 5=set and forget) "
+    };
 
     public CreateProjectCommand(ProjectService projectService, ConsoleInputProvider inputProvider, ScoreCalculator scoreCalculator) {
         this.projectService = projectService;
         this.inputProvider = inputProvider;
         this.scoreCalculator = scoreCalculator;
     }
+
+    private int getAverageScore(String[] prompts) {
+        int total = 0;
+        for (String prompt : prompts) {
+            try {
+                int score = Integer.parseInt(inputProvider.readLine(prompt));
+                if (score < 1 || score > 5) {
+                    throw new NumberFormatException();
+                }
+                total += score;
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid score. Please enter a number between 1 and 5.");
+            }
+        }
+        return Math.round((float) total / prompts.length);
+    }
+
 
     @ShellMethod(key = "create", value = "Creates a new project with the given parameters.")
     public String execute(
@@ -40,74 +91,58 @@ public class CreateProjectCommand {
             @ShellOption(value = {"-r", "--reach"}, help = "Reach score (1-5)", defaultValue = ShellOption.NULL) Integer reach,
             @ShellOption(value = {"-f", "--effort"}, help = "Effort score (1-5)", defaultValue = ShellOption.NULL) Integer effort
     ) {
-        // Interactive input if parameters are not provided
-        if (projectName == null) {
-            projectName = inputProvider.readLine(PROJECT_NAME_PROMPT);
-        }
-        if (projectDescription == null) {
-            projectDescription = inputProvider.readLine(PROJECT_DESCRIPTION_PROMPT);
-        }
-        if (impact == null) {
-            try {
-                impact = Integer.parseInt(inputProvider.readLine(PROJECT_IMPACT_PROMPT));
-            } catch (NumberFormatException e) {
-                return "Invalid impact value. Please enter a number between 1 and 5.";
-            }
-        }
-        if (confidence == null) {
-            try {
-                confidence = Integer.parseInt(inputProvider.readLine(PROJECT_CONFIDENCE_PROMPT));
-            } catch (NumberFormatException e) {
-                return "Invalid confidence value. Please enter a number between 1 and 5.";
-            }
-        }
-        if (ease == null) {
-            try {
-                ease = Integer.parseInt(inputProvider.readLine(PROJECT_EASE_PROMPT));
-            } catch (NumberFormatException e) {
-                return "Invalid ease value. Please enter a number between 1 and 5.";
-            }
-        }
-        if (reach == null) {
-            try {
-                reach = Integer.parseInt(inputProvider.readLine(PROJECT_REACH_PROMPT));
-            } catch (NumberFormatException e) {
-                return "Invalid reach value. Please enter a number between 1 and 5.";
-            }
-        }
-        if (effort == null) {
-            try {
-                effort = Integer.parseInt(inputProvider.readLine(PROJECT_EFFORT_PROMPT));
-            } catch (NumberFormatException e) {
-                return "Invalid effort value. Please enter a number between 1 and 5.";
-            }
-        }
-
-        // Validate input parameters
-        if (projectName == null || projectName.isEmpty()) {
-            return "Project name cannot be empty.";
-        }
-        if (projectDescription == null || projectDescription.isEmpty()) {
-            return "Project description cannot be empty.";
-        }
-        if (impact < 1 || impact > 5 || confidence < 1 || confidence > 5 ||
-                ease < 1 || ease > 5 || reach < 1 || reach > 5 || effort < 1 || effort > 5) {
-            return "All scores must be between 1 and 5.";
-        }
-
-        // Create the project using the service
-        Project project;
         try {
-            project = projectService.createProject(projectName, projectDescription, impact, confidence, ease, reach, effort);
-        } catch (ProjectRepository.NameTakenException e) {
-            return "Project name '" + projectName + "' is already taken. Please choose a different name.";
-        } catch (Exception e) {
-            return "An error occurred while creating the project: " + e.getMessage();
-        }
+            // Interactive input if parameters are not provided
+            if (projectName == null) {
+                projectName = inputProvider.readLine(PROJECT_NAME_PROMPT);
+            }
+            if (projectDescription == null) {
+                projectDescription = inputProvider.readLine(PROJECT_DESCRIPTION_PROMPT);
+            }
+            if (impact == null) {
+                impact = getAverageScore(PROJECT_IMPACT_PROMPTS);
+            }
+            if (confidence == null) {
+                confidence = getAverageScore(PROJECT_CONFIDENCE_PROMPTS);
+            }
+            if (ease == null) {
+                ease = getAverageScore(PROJECT_EASE_PROMPTS);
+            }
+            if (reach == null) {
+                reach = getAverageScore(PROJECT_REACH_PROMPTS);
+            }
+            if (effort == null) {
+                effort = getAverageScore(PROJECT_EFFORT_PROMPTS);
+            }
 
-        // Calculate scores
-        double iceScore = scoreCalculator.ice(project);
-        double riceScore = scoreCalculator.rice(project);
-        return String.format("Project created successfully: %s\nICE Score: %.2f\nRICE Score: %.2f", projectName, iceScore, riceScore);
+            // Validate input parameters
+            if (projectName == null || projectName.isEmpty()) {
+                return "Project name cannot be empty.";
+            }
+            if (projectDescription == null || projectDescription.isEmpty()) {
+                return "Project description cannot be empty.";
+            }
+            if (impact < 1 || impact > 5 || confidence < 1 || confidence > 5 ||
+                    ease < 1 || ease > 5 || reach < 1 || reach > 5 || effort < 1 || effort > 5) {
+                return "All scores must be between 1 and 5.";
+            }
+
+            // Create the project using the service
+            Project project;
+            try {
+                project = projectService.createProject(projectName, projectDescription, impact, confidence, ease, reach, effort);
+            } catch (ProjectRepository.NameTakenException e) {
+                return "Project name '" + projectName + "' is already taken. Please choose a different name.";
+            } catch (Exception e) {
+                return "An error occurred while creating the project: " + e.getMessage();
+            }
+
+            // Calculate scores
+            double iceScore = scoreCalculator.ice(project);
+            double riceScore = scoreCalculator.rice(project);
+            return String.format("Project created successfully: %s\nICE Score: %.2f\nRICE Score: %.2f", projectName, iceScore, riceScore);
+        } catch (IllegalArgumentException e) {
+            return e.getMessage();
+        }
     }
 }
