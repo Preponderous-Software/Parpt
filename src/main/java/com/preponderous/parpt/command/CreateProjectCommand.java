@@ -18,17 +18,68 @@ public class CreateProjectCommand {
     protected static final String PROJECT_NAME_PROMPT = "What is the name of the project? ";
     protected static final String PROJECT_DESCRIPTION_PROMPT = "How would you describe the project? ";
     // TODO: consider using multiple prompts for each score to allow for more detailed input
-    protected static final String PROJECT_IMPACT_PROMPT = "On a scale of 1 to 5, how much potential benefit or revenue impact does this project have? ";
-    protected static final String PROJECT_CONFIDENCE_PROMPT = "On a scale of 1 to 5, how confident are you in the estimates for this project? ";
-    protected static final String PROJECT_EASE_PROMPT = "On a scale of 1 to 5, how easy or quick is this project to implement? ";
-    protected static final String PROJECT_REACH_PROMPT = "On a scale of 1 to 5, how many users or customers will this project impact? ";
-    protected static final String PROJECT_EFFORT_PROMPT = "On a scale of 1 to 5, how much effort is required for this project? (1 being minimal, 5 being significant) ";
+    // Impact prompts - focusing on benefits
+    protected static final String[] PROJECT_IMPACT_PROMPTS = {
+            "Will this make/save money? (1=tiny impact, 5=huge impact) ",
+            "Will this make users happier? (1=slightly, 5=dramatically) ",
+            "Will this give us an edge over competitors? (1=small edge, 5=game-changing) ",
+            "Will this solve any major problems? (1=minor issues, 5=critical problems) "
+    };
+
+    // Confidence prompts - how sure are we?
+    protected static final String[] PROJECT_CONFIDENCE_PROMPTS = {
+            "Do we understand what needs to be built? (1=very unclear, 5=crystal clear) ",
+            "Have we done something similar before? (1=never, 5=many times) ",
+            "Do we have the right skills in the team? (1=missing key skills, 5=perfect fit) ",
+            "Are the requirements likely to change? (1=constantly changing, 5=very stable) "
+    };
+
+    // Ease prompts - how simple is it?
+    protected static final String[] PROJECT_EASE_PROMPTS = {
+            "How straightforward is this to build? (1=very complex, 5=very simple) ",
+            "Do we have the tools we need? (1=need many new tools, 5=have everything) ",
+            "Can we reuse existing code/systems? (1=start from scratch, 5=mostly reusable) ",
+            "How easy is it to test? (1=very difficult, 5=very easy) "
+    };
+
+    // Reach prompts - who will it affect?
+    protected static final String[] PROJECT_REACH_PROMPTS = {
+            "How many users will this help? (1=very few, 5=almost all) ",
+            "Will this attract new users? (1=unlikely, 5=definitely) ",
+            "Will users notice this change? (1=barely noticeable, 5=very visible) ",
+            "How often will users benefit from this? (1=rarely, 5=daily) "
+    };
+
+    // Effort prompts - what will it take?
+    protected static final String[] PROJECT_EFFORT_PROMPTS = {
+            "How long will this take to build? (1=very quick, 5=very long) ",
+            "How many people need to be involved? (1=just a few people, 5=many teams) ",
+            "Will this be hard to maintain? (1=very easy, 5=very difficult) ",
+            "Does this need ongoing work? (1=set and forget, 5=lots of upkeep) "
+    };
 
     public CreateProjectCommand(ProjectService projectService, ConsoleInputProvider inputProvider, ScoreCalculator scoreCalculator) {
         this.projectService = projectService;
         this.inputProvider = inputProvider;
         this.scoreCalculator = scoreCalculator;
     }
+
+    private int getAverageScore(String[] prompts) throws InvalidScoreException {
+        int total = 0;
+        for (String prompt : prompts) {
+            try {
+                int score = Integer.parseInt(inputProvider.readLine(prompt));
+                if (score < 1 || score > 5) {
+                    throw new InvalidScoreException("Invalid score. Must be between 1 and 5.");
+                }
+                total += score;
+            } catch (NumberFormatException e) {
+                throw new InvalidScoreException("Invalid score. Must be a number between 1 and 5.");
+            }
+        }
+        return Math.round((float) total / prompts.length);
+    }
+
 
     @ShellMethod(key = "create", value = "Creates a new project with the given parameters.")
     public String execute(
@@ -48,38 +99,58 @@ public class CreateProjectCommand {
             projectDescription = inputProvider.readLine(PROJECT_DESCRIPTION_PROMPT);
         }
         if (impact == null) {
-            try {
-                impact = Integer.parseInt(inputProvider.readLine(PROJECT_IMPACT_PROMPT));
-            } catch (NumberFormatException e) {
-                return "Invalid impact value. Please enter a number between 1 and 5.";
+            boolean continueLoop = true;
+            while (continueLoop) {
+                try {
+                    impact = getAverageScore(PROJECT_IMPACT_PROMPTS);
+                    continueLoop = false;
+                } catch (InvalidScoreException e) {
+                    System.out.println(e.getMessage());
+                }
             }
         }
         if (confidence == null) {
-            try {
-                confidence = Integer.parseInt(inputProvider.readLine(PROJECT_CONFIDENCE_PROMPT));
-            } catch (NumberFormatException e) {
-                return "Invalid confidence value. Please enter a number between 1 and 5.";
+            boolean continueLoop = true;
+            while (continueLoop) {
+                try {
+                    confidence = getAverageScore(PROJECT_CONFIDENCE_PROMPTS);
+                    continueLoop = false;
+                } catch (InvalidScoreException e) {
+                    System.out.println(e.getMessage());
+                }
             }
         }
         if (ease == null) {
-            try {
-                ease = Integer.parseInt(inputProvider.readLine(PROJECT_EASE_PROMPT));
-            } catch (NumberFormatException e) {
-                return "Invalid ease value. Please enter a number between 1 and 5.";
+            boolean continueLoop = true;
+            while (continueLoop) {
+                try {
+                    ease = getAverageScore(PROJECT_EASE_PROMPTS);
+                    continueLoop = false;
+                } catch (InvalidScoreException e) {
+                    System.out.println(e.getMessage());
+                }
             }
         }
         if (reach == null) {
-            try {
-                reach = Integer.parseInt(inputProvider.readLine(PROJECT_REACH_PROMPT));
-            } catch (NumberFormatException e) {
-                return "Invalid reach value. Please enter a number between 1 and 5.";
+            boolean continueLoop = true;
+            while (continueLoop) {
+                try {
+                    reach = getAverageScore(PROJECT_REACH_PROMPTS);
+                    continueLoop = false;
+                } catch (InvalidScoreException e) {
+                    System.out.println(e.getMessage());
+                }
             }
         }
         if (effort == null) {
-            try {
-                effort = Integer.parseInt(inputProvider.readLine(PROJECT_EFFORT_PROMPT));
-            } catch (NumberFormatException e) {
-                return "Invalid effort value. Please enter a number between 1 and 5.";
+            boolean continueLoop = true;
+            while (continueLoop) {
+                try {
+                    effort = getAverageScore(PROJECT_EFFORT_PROMPTS);
+                    continueLoop = false;
+                } catch (InvalidScoreException e) {
+                    System.out.println(e.getMessage());
+                }
             }
         }
 
@@ -109,5 +180,11 @@ public class CreateProjectCommand {
         double iceScore = scoreCalculator.ice(project);
         double riceScore = scoreCalculator.rice(project);
         return String.format("Project created successfully: %s\nICE Score: %.2f\nRICE Score: %.2f", projectName, iceScore, riceScore);
+    }
+
+    public class InvalidScoreException extends Exception {
+        public InvalidScoreException(String message) {
+            super(message);
+        }
     }
 }
