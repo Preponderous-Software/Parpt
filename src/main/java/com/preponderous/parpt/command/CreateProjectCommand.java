@@ -17,7 +17,7 @@ public class CreateProjectCommand {
 
     protected static final String PROJECT_NAME_PROMPT = "What is the name of the project? ";
     protected static final String PROJECT_DESCRIPTION_PROMPT = "How would you describe the project? ";
-    // TODO: consider using multiple prompts for each score to allow for more detailed input
+
     // Impact prompts - focusing on benefits
     protected static final String[] PROJECT_IMPACT_PROMPTS = {
             "Will this make/save money? (1=tiny impact, 5=huge impact) ",
