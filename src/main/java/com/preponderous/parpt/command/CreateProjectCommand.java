@@ -52,10 +52,10 @@ public class CreateProjectCommand {
 
     // Effort prompts - what will it take?
     protected static final String[] PROJECT_EFFORT_PROMPTS = {
-            "How long will this take to build? (1=very long, 5=very quick) ",
-            "How many people need to be involved? (1=many teams, 5=just a few people) ",
-            "Will this be hard to maintain? (1=very difficult, 5=very easy) ",
-            "Does this need ongoing work? (1=lots of upkeep, 5=set and forget) "
+            "How long will this take to build? (1=very quick, 5=very long) ",
+            "How many people need to be involved? (1=just a few people, 5=many teams) ",
+            "Will this be hard to maintain? (1=very easy, 5=very difficult) ",
+            "Does this need ongoing work? (1=set and forget, 5=lots of upkeep) "
     };
 
     public CreateProjectCommand(ProjectService projectService, ConsoleInputProvider inputProvider, ScoreCalculator scoreCalculator) {
