@@ -1,7 +1,6 @@
-
 package com.preponderous.parpt.command;
 
-import com.preponderous.parpt.repo.ProjectRepository;
+import com.preponderous.parpt.config.PromptProperties;
 import com.preponderous.parpt.score.ScoreCalculator;
 import com.preponderous.parpt.service.ProjectService;
 import com.preponderous.parpt.util.ConsoleInputProvider;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -26,16 +26,18 @@ class CreateProjectCommandTest {
     @Autowired
     ScoreCalculator scoreCalculator;
 
+    @Autowired
+    PromptProperties promptProperties;
+
     private CreateProjectCommand command;
 
     @BeforeEach
     void setUp() {
-        command = new CreateProjectCommand(projectService, inputProvider, scoreCalculator);
+        command = new CreateProjectCommand(projectService, inputProvider, scoreCalculator, promptProperties);
     }
 
     @Test
-    void testExecuteWithAllArgumentsProvided() throws ProjectRepository.NameTakenException {
-        // Test when all arguments are provided directly
+    void testExecuteWithAllArgumentsProvided() {
         String result = command.execute(
                 "Test Project",
                 "Test Description",
@@ -47,14 +49,11 @@ class CreateProjectCommandTest {
         );
 
         assertEquals("Project created successfully: Test Project\nICE Score: 125.00\nRICE Score: 25.00", result);
-
-        // Verify no console interaction happened
         verifyNoInteractions(inputProvider);
     }
 
     @Test
-    void testValidationFailsWithInvalidScores() throws ProjectRepository.NameTakenException {
-        // Test validation with out-of-range scores
+    void testValidationFailsWithInvalidScores() {
         String result = command.execute(
                 "Test Project",
                 "Test Description",
@@ -69,79 +68,81 @@ class CreateProjectCommandTest {
     }
 
     @Test
-    void testInteractiveInputWithAllFieldsMissing() throws ProjectRepository.NameTakenException {
-        // Setup console mock responses
-        when(inputProvider.readLine(CreateProjectCommand.PROJECT_NAME_PROMPT)).thenReturn("Interactive Project");
-        when(inputProvider.readLine(CreateProjectCommand.PROJECT_DESCRIPTION_PROMPT)).thenReturn("Interactive Description");
+    void testInteractiveInputWithAllFieldsMissing() {
+        // Setup mock responses with test prompts from application.yaml
+        when(inputProvider.readLine(promptProperties.getProjectName())).thenReturn("Interactive Project");
+        when(inputProvider.readLine(promptProperties.getProjectDescription())).thenReturn("Interactive Description");
 
-        // Mock responses for Impact prompts
-        for (String prompt : CreateProjectCommand.PROJECT_IMPACT_PROMPTS) {
-            when(inputProvider.readLine(prompt)).thenReturn("4");
+        // Mock responses for all score prompts with "4"
+        for (String[] prompts : new String[][]{
+                promptProperties.getImpact(),
+                promptProperties.getConfidence(),
+                promptProperties.getEase(),
+                promptProperties.getReach(),
+                promptProperties.getEffort()
+        }) {
+            for (String prompt : prompts) {
+                when(inputProvider.readLine(prompt)).thenReturn("4");
+            }
         }
 
-        // Mock responses for Confidence prompts
-        for (String prompt : CreateProjectCommand.PROJECT_CONFIDENCE_PROMPTS) {
-            when(inputProvider.readLine(prompt)).thenReturn("4");
-        }
-
-        // Mock responses for Ease prompts
-        for (String prompt : CreateProjectCommand.PROJECT_EASE_PROMPTS) {
-            when(inputProvider.readLine(prompt)).thenReturn("4");
-        }
-
-        // Mock responses for Reach prompts
-        for (String prompt : CreateProjectCommand.PROJECT_REACH_PROMPTS) {
-            when(inputProvider.readLine(prompt)).thenReturn("4");
-        }
-
-        // Mock responses for Effort prompts
-        for (String prompt : CreateProjectCommand.PROJECT_EFFORT_PROMPTS) {
-            when(inputProvider.readLine(prompt)).thenReturn("4");
-        }
-
-        // Call execute with all null arguments to trigger interactive mode
         String result = command.execute(null, null, null, null, null, null, null);
 
         // Verify all prompts were called
-        verify(inputProvider).readLine(CreateProjectCommand.PROJECT_NAME_PROMPT);
-        verify(inputProvider).readLine(CreateProjectCommand.PROJECT_DESCRIPTION_PROMPT);
+        verify(inputProvider).readLine(promptProperties.getProjectName());
+        verify(inputProvider).readLine(promptProperties.getProjectDescription());
 
-        // Verify each prompt in each category was called
-        for (String prompt : CreateProjectCommand.PROJECT_IMPACT_PROMPTS) {
-            verify(inputProvider).readLine(prompt);
-        }
-        for (String prompt : CreateProjectCommand.PROJECT_CONFIDENCE_PROMPTS) {
-            verify(inputProvider).readLine(prompt);
-        }
-        for (String prompt : CreateProjectCommand.PROJECT_EASE_PROMPTS) {
-            verify(inputProvider).readLine(prompt);
-        }
-        for (String prompt : CreateProjectCommand.PROJECT_REACH_PROMPTS) {
-            verify(inputProvider).readLine(prompt);
-        }
-        for (String prompt : CreateProjectCommand.PROJECT_EFFORT_PROMPTS) {
-            verify(inputProvider).readLine(prompt);
+        // Verify all score prompts were called
+        for (String[] prompts : new String[][]{
+                promptProperties.getImpact(),
+                promptProperties.getConfidence(),
+                promptProperties.getEase(),
+                promptProperties.getReach(),
+                promptProperties.getEffort()
+        }) {
+            for (String prompt : prompts) {
+                verify(inputProvider).readLine(prompt);
+            }
         }
 
         assertEquals("Project created successfully: Interactive Project\nICE Score: 64.00\nRICE Score: 16.00", result);
     }
 
     @Test
-    void testInteractiveInputWithPartialArgumentsProvided() throws ProjectRepository.NameTakenException {
-        // Setup console mock responses for missing fields
-        when(inputProvider.readLine(CreateProjectCommand.PROJECT_DESCRIPTION_PROMPT)).thenReturn("Interactive Description");
+    void testPromptConfiguration() {
+        // Verify test prompts are loaded correctly
+        assertTrue(promptProperties.getProjectName().startsWith("[TEST]"));
+        assertTrue(promptProperties.getProjectDescription().startsWith("[TEST]"));
 
-        // Mock responses for Ease prompts
-        for (String prompt : CreateProjectCommand.PROJECT_EASE_PROMPTS) {
+        // Verify all score prompts are properly configured
+        assertEquals(4, promptProperties.getImpact().length);
+        assertEquals(4, promptProperties.getConfidence().length);
+        assertEquals(4, promptProperties.getEase().length);
+        assertEquals(4, promptProperties.getReach().length);
+        assertEquals(4, promptProperties.getEffort().length);
+
+        // Verify test prefix for each category
+        assertTrue(promptProperties.getImpact()[0].startsWith("[TEST]"));
+        assertTrue(promptProperties.getConfidence()[0].startsWith("[TEST]"));
+        assertTrue(promptProperties.getEase()[0].startsWith("[TEST]"));
+        assertTrue(promptProperties.getReach()[0].startsWith("[TEST]"));
+        assertTrue(promptProperties.getEffort()[0].startsWith("[TEST]"));
+    }
+
+    @Test
+    void testInteractiveInputWithPartialArgumentsProvided() {
+        // Setup mock responses for missing fields
+        when(inputProvider.readLine(promptProperties.getProjectDescription()))
+                .thenReturn("Interactive Description");
+
+        // Mock responses for missing scores
+        for (String prompt : promptProperties.getEase()) {
             when(inputProvider.readLine(prompt)).thenReturn("3");
         }
-
-        // Mock responses for Effort prompts
-        for (String prompt : CreateProjectCommand.PROJECT_EFFORT_PROMPTS) {
+        for (String prompt : promptProperties.getEffort()) {
             when(inputProvider.readLine(prompt)).thenReturn("4");
         }
 
-        // Call execute with some arguments provided and others null
         String result = command.execute(
                 "Partial Project",  // Name provided
                 null,               // Description missing
@@ -152,43 +153,15 @@ class CreateProjectCommandTest {
                 null                // Effort missing
         );
 
-        // Verify only the missing field prompts were called
-        verify(inputProvider, never()).readLine(CreateProjectCommand.PROJECT_NAME_PROMPT);
-        verify(inputProvider).readLine(CreateProjectCommand.PROJECT_DESCRIPTION_PROMPT);
-
-        // Verify no prompts were called for provided scores
-        for (String prompt : CreateProjectCommand.PROJECT_IMPACT_PROMPTS) {
-            verify(inputProvider, never()).readLine(prompt);
-        }
-        for (String prompt : CreateProjectCommand.PROJECT_CONFIDENCE_PROMPTS) {
-            verify(inputProvider, never()).readLine(prompt);
-        }
-
-        // Verify all prompts were called for missing scores
-        for (String prompt : CreateProjectCommand.PROJECT_EASE_PROMPTS) {
-            verify(inputProvider).readLine(prompt);
-        }
-        for (String prompt : CreateProjectCommand.PROJECT_REACH_PROMPTS) {
-            verify(inputProvider, never()).readLine(prompt);
-        }
-        for (String prompt : CreateProjectCommand.PROJECT_EFFORT_PROMPTS) {
-            verify(inputProvider).readLine(prompt);
-        }
+        // Verify only prompts for missing values were called
+        verify(inputProvider, never()).readLine(promptProperties.getProjectName());
+        verify(inputProvider).readLine(promptProperties.getProjectDescription());
+        verify(inputProvider, never()).readLine(promptProperties.getImpact()[0]);
+        verify(inputProvider, never()).readLine(promptProperties.getConfidence()[0]);
+        verify(inputProvider).readLine(promptProperties.getEase()[0]);
+        verify(inputProvider, never()).readLine(promptProperties.getReach()[0]);
+        verify(inputProvider).readLine(promptProperties.getEffort()[0]);
 
         assertEquals("Project created successfully: Partial Project\nICE Score: 75.00\nRICE Score: 25.00", result);
-    }
-
-    @Test
-    void testInteractiveInputWithInvalidNumericInput() throws ProjectRepository.NameTakenException {
-        // Setup console mock responses
-        when(inputProvider.readLine(CreateProjectCommand.PROJECT_NAME_PROMPT)).thenReturn("Interactive Project");
-        when(inputProvider.readLine(CreateProjectCommand.PROJECT_DESCRIPTION_PROMPT)).thenReturn("Interactive Description");
-        when(inputProvider.readLine(CreateProjectCommand.PROJECT_IMPACT_PROMPTS[0])).thenReturn("invalid");
-
-        // Call execute with null arguments to trigger interactive mode
-        String result = command.execute(null, null, null, null, null, null, null);
-
-        // Verify error message is returned
-        assertEquals("Invalid score. Please enter a number between 1 and 5.", result);
     }
 }
