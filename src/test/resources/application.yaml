@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: Parpt-Test
+  shell:
+    interactive:
+      enabled: false
+    history:
+      enabled: false
+
+parpt:
+  prompts:
+    project-name: "[TEST] Project name: "
+    project-description: "[TEST] Project description: "
+    impact:
+      - "[TEST] Impact 1: Money impact (1-5): "
+      - "[TEST] Impact 2: User happiness (1-5): "
+      - "[TEST] Impact 3: Competitive edge (1-5): "
+      - "[TEST] Impact 4: Problem solving (1-5): "
+    confidence:
+      - "[TEST] Confidence 1: Requirements clarity (1-5): "
+      - "[TEST] Confidence 2: Prior experience (1-5): "
+      - "[TEST] Confidence 3: Team skills (1-5): "
+      - "[TEST] Confidence 4: Requirements stability (1-5): "
+    ease:
+      - "[TEST] Ease 1: Build complexity (1-5): "
+      - "[TEST] Ease 2: Tools availability (1-5): "
+      - "[TEST] Ease 3: Code reuse (1-5): "
+      - "[TEST] Ease 4: Testability (1-5): "
+    reach:
+      - "[TEST] Reach 1: User coverage (1-5): "
+      - "[TEST] Reach 2: New user attraction (1-5): "
+      - "[TEST] Reach 3: Change visibility (1-5): "
+      - "[TEST] Reach 4: Usage frequency (1-5): "
+    effort:
+      - "[TEST] Effort 1: Build time (1-5): "
+      - "[TEST] Effort 2: Team size (1-5): "
+      - "[TEST] Effort 3: Maintenance (1-5): "
+      - "[TEST] Effort 4: Ongoing work (1-5): "
