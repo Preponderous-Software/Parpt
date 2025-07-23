@@ -1,6 +1,8 @@
 
 package com.preponderous.parpt.repo;
 
+import com.preponderous.parpt.domain.Project;
+
 import java.util.List;
 
 /**
@@ -12,14 +14,14 @@ public interface ProjectJsonReaderWriter {
     /**
      * Writes a list of projects to JSON format.
      *
-     * @param projects the list of project names to be written to JSON
+     * @param projects the list of projects to be written to JSON
      */
-    void writeJson(List<String> projects);
+    void writeJson(List<Project> projects);
 
     /**
      * Reads and deserializes projects from JSON format.
      *
-     * @return a list of project names read from JSON
+     * @return a list of projects read from JSON
      */
-    List<String> readJson();
+    List<Project> readJson();
 }
