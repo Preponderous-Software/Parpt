@@ -60,8 +60,14 @@ public class CreateProjectCommand {
         if (projectName == null) {
             projectName = inputProvider.readLine(promptProperties.getProjectName());
         }
+        if (projectName == null || projectName.isEmpty()) {
+            return "Project name cannot be empty.";
+        }
         if (projectDescription == null) {
             projectDescription = inputProvider.readLine(promptProperties.getProjectDescription());
+        }
+        if (projectDescription == null || projectDescription.isEmpty()) {
+            return "Project description cannot be empty.";
         }
         if (impact == null) {
             boolean continueLoop = true;
@@ -119,13 +125,6 @@ public class CreateProjectCommand {
             }
         }
 
-        // Validate input parameters
-        if (projectName == null || projectName.isEmpty()) {
-            return "Project name cannot be empty.";
-        }
-        if (projectDescription == null || projectDescription.isEmpty()) {
-            return "Project description cannot be empty.";
-        }
         if (impact < 1 || impact > 5 || confidence < 1 || confidence > 5 ||
                 ease < 1 || ease > 5 || reach < 1 || reach > 5 || effort < 1 || effort > 5) {
             return "All scores must be between 1 and 5.";
