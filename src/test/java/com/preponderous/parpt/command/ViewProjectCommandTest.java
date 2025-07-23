@@ -55,11 +55,11 @@ class ViewProjectCommandTest {
         // Then the result should contain the project details
         assertTrue(result.contains("Project: Test Project"));
         assertTrue(result.contains("Description: This is a test project"));
-        assertTrue(result.contains("Impact: 5"));
-        assertTrue(result.contains("Confidence: 4"));
-        assertTrue(result.contains("Ease: 3"));
-        assertTrue(result.contains("Reach: 2"));
-        assertTrue(result.contains("Effort: 1"));
+        assertTrue(result.contains("Impact: very high"));
+        assertTrue(result.contains("Confidence: high"));
+        assertTrue(result.contains("Ease: medium"));
+        assertTrue(result.contains("Reach: low"));
+        assertTrue(result.contains("Effort: very low"));
         assertTrue(result.contains("ICE Score"));
         assertTrue(result.contains("RICE Score"));
     }
