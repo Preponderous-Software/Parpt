@@ -6,3 +6,32 @@ spring:
       enabled: true
     history:
         enabled: true
+parpt:
+  prompts:
+    project-name: "What is the name of the project? "
+    project-description: "How would you describe the project? "
+    impact:
+      - "Will this make/save money? (1=tiny impact, 5=huge impact) "
+      - "Will this make users happier? (1=slightly, 5=dramatically) "
+      - "Will this give us an edge over competitors? (1=small edge, 5=game-changing) "
+      - "Will this solve any major problems? (1=minor issues, 5=critical problems) "
+    confidence:
+      - "Do we understand what needs to be built? (1=very unclear, 5=crystal clear) "
+      - "Have we done something similar before? (1=never, 5=many times) "
+      - "Do we have the right skills in the team? (1=missing key skills, 5=perfect fit) "
+      - "Are the requirements likely to change? (1=constantly changing, 5=very stable) "
+    ease:
+      - "How straightforward is this to build? (1=very complex, 5=very simple) "
+      - "Do we have the tools we need? (1=need many new tools, 5=have everything) "
+      - "Can we reuse existing code/systems? (1=start from scratch, 5=mostly reusable) "
+      - "How easy is it to test? (1=very difficult, 5=very easy) "
+    reach:
+      - "How many users will this help? (1=very few, 5=almost all) "
+      - "Will this attract new users? (1=unlikely, 5=definitely) "
+      - "Will users notice this change? (1=barely noticeable, 5=very visible) "
+      - "How often will users benefit from this? (1=rarely, 5=daily) "
+    effort:
+      - "How long will this take to build? (1=very quick, 5=very long) "
+      - "How many people need to be involved? (1=just a few people, 5=many teams) "
+      - "Will this be hard to maintain? (1=very easy, 5=very difficult) "
+      - "Does this need ongoing work? (1=set and forget, 5=lots of upkeep) "

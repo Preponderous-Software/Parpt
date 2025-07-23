@@ -1,5 +1,6 @@
 package com.preponderous.parpt.command;
 
+import com.preponderous.parpt.config.PromptProperties;
 import com.preponderous.parpt.domain.Project;
 import com.preponderous.parpt.repo.ProjectRepository;
 import com.preponderous.parpt.score.ScoreCalculator;
@@ -14,55 +15,19 @@ public class CreateProjectCommand {
     private final ProjectService projectService;
     private final ConsoleInputProvider inputProvider;
     private final ScoreCalculator scoreCalculator;
+    private final PromptProperties promptProperties;
 
-    protected static final String PROJECT_NAME_PROMPT = "What is the name of the project? ";
-    protected static final String PROJECT_DESCRIPTION_PROMPT = "How would you describe the project? ";
-
-    // Impact prompts - focusing on benefits
-    protected static final String[] PROJECT_IMPACT_PROMPTS = {
-            "Will this make/save money? (1=tiny impact, 5=huge impact) ",
-            "Will this make users happier? (1=slightly, 5=dramatically) ",
-            "Will this give us an edge over competitors? (1=small edge, 5=game-changing) ",
-            "Will this solve any major problems? (1=minor issues, 5=critical problems) "
-    };
-
-    // Confidence prompts - how sure are we?
-    protected static final String[] PROJECT_CONFIDENCE_PROMPTS = {
-            "Do we understand what needs to be built? (1=very unclear, 5=crystal clear) ",
-            "Have we done something similar before? (1=never, 5=many times) ",
-            "Do we have the right skills in the team? (1=missing key skills, 5=perfect fit) ",
-            "Are the requirements likely to change? (1=constantly changing, 5=very stable) "
-    };
-
-    // Ease prompts - how simple is it?
-    protected static final String[] PROJECT_EASE_PROMPTS = {
-            "How straightforward is this to build? (1=very complex, 5=very simple) ",
-            "Do we have the tools we need? (1=need many new tools, 5=have everything) ",
-            "Can we reuse existing code/systems? (1=start from scratch, 5=mostly reusable) ",
-            "How easy is it to test? (1=very difficult, 5=very easy) "
-    };
-
-    // Reach prompts - who will it affect?
-    protected static final String[] PROJECT_REACH_PROMPTS = {
-            "How many users will this help? (1=very few, 5=almost all) ",
-            "Will this attract new users? (1=unlikely, 5=definitely) ",
-            "Will users notice this change? (1=barely noticeable, 5=very visible) ",
-            "How often will users benefit from this? (1=rarely, 5=daily) "
-    };
-
-    // Effort prompts - what will it take?
-    protected static final String[] PROJECT_EFFORT_PROMPTS = {
-            "How long will this take to build? (1=very quick, 5=very long) ",
-            "How many people need to be involved? (1=just a few people, 5=many teams) ",
-            "Will this be hard to maintain? (1=very easy, 5=very difficult) ",
-            "Does this need ongoing work? (1=set and forget, 5=lots of upkeep) "
-    };
-
-    public CreateProjectCommand(ProjectService projectService, ConsoleInputProvider inputProvider, ScoreCalculator scoreCalculator) {
+    public CreateProjectCommand(
+            ProjectService projectService,
+            ConsoleInputProvider inputProvider,
+            ScoreCalculator scoreCalculator,
+            PromptProperties promptProperties) {
         this.projectService = projectService;
         this.inputProvider = inputProvider;
         this.scoreCalculator = scoreCalculator;
+        this.promptProperties = promptProperties;
     }
+
 
     private int getAverageScore(String[] prompts) throws InvalidScoreException {
         int total = 0;
@@ -93,16 +58,16 @@ public class CreateProjectCommand {
     ) {
         // Interactive input if parameters are not provided
         if (projectName == null) {
-            projectName = inputProvider.readLine(PROJECT_NAME_PROMPT);
+            projectName = inputProvider.readLine(promptProperties.getProjectName());
         }
         if (projectDescription == null) {
-            projectDescription = inputProvider.readLine(PROJECT_DESCRIPTION_PROMPT);
+            projectDescription = inputProvider.readLine(promptProperties.getProjectDescription());
         }
         if (impact == null) {
             boolean continueLoop = true;
             while (continueLoop) {
                 try {
-                    impact = getAverageScore(PROJECT_IMPACT_PROMPTS);
+                    impact = getAverageScore(promptProperties.getImpact());
                     continueLoop = false;
                 } catch (InvalidScoreException e) {
                     System.out.println(e.getMessage());
@@ -113,7 +78,7 @@ public class CreateProjectCommand {
             boolean continueLoop = true;
             while (continueLoop) {
                 try {
-                    confidence = getAverageScore(PROJECT_CONFIDENCE_PROMPTS);
+                    confidence = getAverageScore(promptProperties.getConfidence());
                     continueLoop = false;
                 } catch (InvalidScoreException e) {
                     System.out.println(e.getMessage());
@@ -124,7 +89,7 @@ public class CreateProjectCommand {
             boolean continueLoop = true;
             while (continueLoop) {
                 try {
-                    ease = getAverageScore(PROJECT_EASE_PROMPTS);
+                    ease = getAverageScore(promptProperties.getEase());
                     continueLoop = false;
                 } catch (InvalidScoreException e) {
                     System.out.println(e.getMessage());
@@ -135,7 +100,7 @@ public class CreateProjectCommand {
             boolean continueLoop = true;
             while (continueLoop) {
                 try {
-                    reach = getAverageScore(PROJECT_REACH_PROMPTS);
+                    reach = getAverageScore(promptProperties.getReach());
                     continueLoop = false;
                 } catch (InvalidScoreException e) {
                     System.out.println(e.getMessage());
@@ -146,7 +111,7 @@ public class CreateProjectCommand {
             boolean continueLoop = true;
             while (continueLoop) {
                 try {
-                    effort = getAverageScore(PROJECT_EFFORT_PROMPTS);
+                    effort = getAverageScore(promptProperties.getEffort());
                     continueLoop = false;
                 } catch (InvalidScoreException e) {
                     System.out.println(e.getMessage());
