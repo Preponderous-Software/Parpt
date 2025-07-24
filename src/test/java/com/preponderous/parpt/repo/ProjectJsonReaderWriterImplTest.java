@@ -63,6 +63,9 @@ class ProjectJsonReaderWriterImplTest {
                 .reach(5)
                 .effort(4)
                 .build();
+
+        // wipe file
+        readerWriter.writeJson(List.of());
     }
 
     @Test
