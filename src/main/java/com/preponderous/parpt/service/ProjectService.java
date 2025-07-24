@@ -35,4 +35,13 @@ public class ProjectService {
     public Project getProject(String projectName) throws ProjectRepository.ProjectNotFoundException {
         return projectRepository.findByName(projectName);
     }
+
+    public boolean isNameTaken(String projectName) {
+        try {
+            getProject(projectName);
+            return true;
+        } catch (ProjectRepository.ProjectNotFoundException e) {
+            return false;
+        }
+    }
 }

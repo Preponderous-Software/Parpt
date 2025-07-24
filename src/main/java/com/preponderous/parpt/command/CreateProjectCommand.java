@@ -63,6 +63,9 @@ public class CreateProjectCommand {
         if (projectName == null || projectName.isEmpty()) {
             return "Project name cannot be empty.";
         }
+        if (projectService.isNameTaken(projectName)) {
+            return "Project name '" + projectName + "' is already taken. Please choose a different name.";
+        }
         if (projectDescription == null) {
             projectDescription = inputProvider.readLine(promptProperties.getProjectDescription());
         }
