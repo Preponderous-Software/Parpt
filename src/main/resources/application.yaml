@@ -35,3 +35,6 @@ parpt:
       - "How many people need to be involved? (1=just a few people, 5=many teams) "
       - "Will this be hard to maintain? (1=very easy, 5=very difficult) "
       - "Does this need ongoing work? (1=set and forget, 5=lots of upkeep) "
+app:
+  projects:
+    file: projects.json

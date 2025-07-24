@@ -36,3 +36,6 @@ parpt:
       - "[TEST] Effort 2: Team size (1-5): "
       - "[TEST] Effort 3: Maintenance (1-5): "
       - "[TEST] Effort 4: Ongoing work (1-5): "
+app:
+  projects:
+    file: test-projects.json

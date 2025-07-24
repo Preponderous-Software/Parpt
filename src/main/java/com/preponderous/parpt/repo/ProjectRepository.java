@@ -8,7 +8,13 @@ import java.util.List;
 
 @Repository
 public class ProjectRepository {
-    private final List<Project> projects = new ArrayList<>();
+    private final List<Project> projects;
+    private final ProjectJsonReaderWriter projectJsonReaderWriter;
+
+    public ProjectRepository(ProjectJsonReaderWriter projectJsonReaderWriter) {
+        this.projectJsonReaderWriter = projectJsonReaderWriter;
+        this.projects = projectJsonReaderWriter.readJson();
+    }
 
     public List<Project> findAll() {
         return new ArrayList<>(projects);
@@ -16,6 +22,7 @@ public class ProjectRepository {
 
     public void clear() {
         projects.clear();
+        projectJsonReaderWriter.writeJson(projects);
     }
 
     public void add(Project project) throws NameTakenException {
@@ -23,10 +30,11 @@ public class ProjectRepository {
             throw new NameTakenException("Project with the same name already exists");
         }
         projects.add(project);
+        projectJsonReaderWriter.writeJson(projects);
     }
 
     public Project findByName(String projectName) throws ProjectNotFoundException {
-        Project retrievedProject =  projects.stream()
+        Project retrievedProject = projects.stream()
                 .filter(project -> project.getName().equals(projectName))
                 .findFirst()
                 .orElse(null);
