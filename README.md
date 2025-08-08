@@ -54,11 +54,14 @@ This project is in early development. Contributions, suggestions and issue repor
 - Join the discussion
 
 ## License
-MIT License
+This project is licensed under the **Stephenson Software Non-Commercial License (Stephenson-NC)**.  
+© 2025 Daniel McCoy Stephenson. All rights reserved.  
 
-Copyright (c) 2025 Daniel McCoy Stephenson / Preponderous Software
+You may use, modify, and share this software for **non-commercial purposes only**.  
+Commercial use is prohibited without explicit written permission from the copyright holder.  
 
-You are free to use, modify and distribute this software under the terms of the MIT License. See LICENSE for details.
+Full license text: [Stephenson-NC License](https://github.com/Stephenson-Software/stephenson-nc-license)  
+SPDX Identifier: `Stephenson-NC`
 
 ## About Preponderous
 Preponderous Software builds developer tools, simulations and creative systems that help people focus their energy where it counts most.
