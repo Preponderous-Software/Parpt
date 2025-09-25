@@ -1,10 +1,14 @@
 package com.preponderous.parpt.repo;
 
 import com.preponderous.parpt.domain.Project;
-import com.preponderous.parpt.score.ScoreCalculator;
+import com.preponderous.parpt.export.MarkdownFormatter;
+import com.preponderous.parpt.export.ProjectSorter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,20 +17,27 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class ProjectMarkdownWriterImplTest {
 
+    @Mock
+    private MarkdownFormatter markdownFormatter;
+    
+    @Mock
+    private ProjectSorter projectSorter;
+    
     private ProjectMarkdownWriterImpl markdownWriter;
-    private ScoreCalculator scoreCalculator;
     private Path tempMarkdownFile;
 
     @BeforeEach
     void setUp(@TempDir Path tempDir) throws IOException {
         tempMarkdownFile = tempDir.resolve("test-projects.md");
-        scoreCalculator = new ScoreCalculator();
         markdownWriter = new ProjectMarkdownWriterImpl(
                 tempMarkdownFile.toString(),
-                scoreCalculator
+                markdownFormatter,
+                projectSorter
         );
     }
 
@@ -36,13 +47,14 @@ class ProjectMarkdownWriterImplTest {
         Project project = Project.builder()
                 .name("Test Project")
                 .description("A test project")
-                .impact(4)
-                .confidence(3)
-                .ease(5)
-                .reach(2)
-                .effort(3)
+                .impact(4).confidence(3).ease(5).reach(2).effort(3)
                 .build();
         List<Project> projects = List.of(project);
+        List<Project> sortedProjects = List.of(project);
+
+        when(markdownFormatter.formatHeader(false)).thenReturn("# Project Priorities\n\n");
+        when(projectSorter.sortByScore(projects, false)).thenReturn(sortedProjects);
+        when(markdownFormatter.formatProject(project, 1)).thenReturn("## 1. Test Project\n");
 
         // When
         markdownWriter.writeMarkdown(projects, false);
@@ -50,89 +62,77 @@ class ProjectMarkdownWriterImplTest {
         // Then
         assertTrue(Files.exists(tempMarkdownFile));
         String content = Files.readString(tempMarkdownFile);
-        assertAll(
-                () -> assertTrue(content.contains("# Project Priorities")),
-                () -> assertTrue(content.contains("Test Project")),
-                () -> assertTrue(content.contains("A test project")),
-                () -> assertTrue(content.contains("ICE Score")),
-                () -> assertTrue(content.contains("RICE Score")),
-                () -> assertTrue(content.contains("Sorted by ICE score"))
-        );
+        assertTrue(content.contains("# Project Priorities"));
+        assertTrue(content.contains("## 1. Test Project"));
+        
+        verify(markdownFormatter).formatHeader(false);
+        verify(projectSorter).sortByScore(projects, false);
+        verify(markdownFormatter).formatProject(project, 1);
     }
 
     @Test
-    void writeMarkdown_ShouldSortByICEByDefault() throws IOException {
+    void writeMarkdown_ShouldDelegateToSorterWithCorrectParameters() throws IOException {
         // Given
-        Project highICE = Project.builder()
-                .name("High ICE")
-                .description("High ICE project")
-                .impact(5).confidence(5).ease(5)
-                .reach(1).effort(5)
-                .build();
-        
-        Project lowICE = Project.builder()
-                .name("Low ICE")
-                .description("Low ICE project")
-                .impact(1).confidence(1).ease(1)
-                .reach(5).effort(1)
-                .build();
-        
-        List<Project> projects = Arrays.asList(lowICE, highICE);
+        Project project1 = Project.builder().name("Project 1").build();
+        Project project2 = Project.builder().name("Project 2").build();
+        List<Project> projects = Arrays.asList(project1, project2);
+        List<Project> sortedProjects = Arrays.asList(project2, project1);
 
-        // When
-        markdownWriter.writeMarkdown(projects);
-
-        // Then
-        String content = Files.readString(tempMarkdownFile);
-        int highICEIndex = content.indexOf("High ICE");
-        int lowICEIndex = content.indexOf("Low ICE");
-        assertTrue(highICEIndex < lowICEIndex, "High ICE project should appear before Low ICE project");
-    }
-
-    @Test
-    void writeMarkdown_ShouldSortByRICEWhenRequested() throws IOException {
-        // Given
-        Project highRICE = Project.builder()
-                .name("High RICE")
-                .description("High RICE project")
-                .impact(5).confidence(5).ease(1)
-                .reach(5).effort(1)
-                .build();
-        
-        Project lowRICE = Project.builder()
-                .name("Low RICE")
-                .description("Low RICE project")
-                .impact(1).confidence(1).ease(5)
-                .reach(1).effort(5)
-                .build();
-        
-        List<Project> projects = Arrays.asList(lowRICE, highRICE);
+        when(markdownFormatter.formatHeader(true)).thenReturn("# Header\n");
+        when(projectSorter.sortByScore(projects, true)).thenReturn(sortedProjects);
+        when(markdownFormatter.formatProject(any(), anyInt())).thenReturn("## Project\n");
 
         // When
         markdownWriter.writeMarkdown(projects, true);
 
         // Then
+        verify(projectSorter).sortByScore(projects, true);
+        verify(markdownFormatter).formatHeader(true);
+        verify(markdownFormatter).formatProject(project2, 1);
+        verify(markdownFormatter).formatProject(project1, 2);
+    }
+
+    @Test
+    void writeMarkdown_WithRiceSort_ShouldPassCorrectParameterToFormatter() throws IOException {
+        // Given
+        Project project = Project.builder().name("Test Project").build();
+        List<Project> projects = List.of(project);
+        List<Project> sortedProjects = List.of(project);
+
+        when(markdownFormatter.formatHeader(true)).thenReturn("# Header RICE\n");
+        when(projectSorter.sortByScore(projects, true)).thenReturn(sortedProjects);
+        when(markdownFormatter.formatProject(project, 1)).thenReturn("## Project\n");
+
+        // When
+        markdownWriter.writeMarkdown(projects, true);
+
+        // Then
+        verify(markdownFormatter).formatHeader(true);
+        verify(projectSorter).sortByScore(projects, true);
+        
         String content = Files.readString(tempMarkdownFile);
-        assertAll(
-                () -> assertTrue(content.contains("Sorted by RICE score")),
-                () -> assertTrue(content.indexOf("High RICE") < content.indexOf("Low RICE"))
-        );
+        assertTrue(content.contains("# Header RICE"));
     }
 
     @Test
     void writeMarkdown_WithEmptyList_ShouldWriteNoProjectsMessage() throws IOException {
         // Given
         List<Project> projects = List.of();
+        when(markdownFormatter.formatHeader(false)).thenReturn("# Header\n");
+        when(markdownFormatter.formatNoProjectsMessage()).thenReturn("No projects found.\n");
 
         // When
         markdownWriter.writeMarkdown(projects, false);
 
         // Then
         String content = Files.readString(tempMarkdownFile);
-        assertAll(
-                () -> assertTrue(content.contains("# Project Priorities")),
-                () -> assertTrue(content.contains("No projects found"))
-        );
+        assertTrue(content.contains("# Header"));
+        assertTrue(content.contains("No projects found"));
+        
+        verify(markdownFormatter).formatHeader(false);
+        verify(markdownFormatter).formatNoProjectsMessage();
+        verify(projectSorter, never()).sortByScore(any(), anyBoolean());
+        verify(markdownFormatter, never()).formatProject(any(), anyInt());
     }
 
     @Test
@@ -140,33 +140,31 @@ class ProjectMarkdownWriterImplTest {
         // When & Then
         assertThrows(IllegalArgumentException.class, 
                 () -> markdownWriter.writeMarkdown(null, false));
+        
+        verifyNoInteractions(markdownFormatter);
+        verifyNoInteractions(projectSorter);
     }
 
     @Test
-    void writeMarkdown_ShouldIncludeAllProjectDetails() throws IOException {
+    void writeMarkdown_ShouldUseCorrectRankingForMultipleProjects() throws IOException {
         // Given
-        Project project = Project.builder()
-                .name("Detailed Project")
-                .description("A project with all details")
-                .impact(4)
-                .confidence(3)
-                .ease(2)
-                .reach(5)
-                .effort(3)
-                .build();
-        List<Project> projects = List.of(project);
+        Project project1 = Project.builder().name("First").build();
+        Project project2 = Project.builder().name("Second").build();
+        Project project3 = Project.builder().name("Third").build();
+        
+        List<Project> projects = Arrays.asList(project1, project2, project3);
+        List<Project> sortedProjects = Arrays.asList(project3, project1, project2);
+
+        when(markdownFormatter.formatHeader(false)).thenReturn("# Header\n");
+        when(projectSorter.sortByScore(projects, false)).thenReturn(sortedProjects);
+        when(markdownFormatter.formatProject(any(), anyInt())).thenReturn("## Project\n");
 
         // When
         markdownWriter.writeMarkdown(projects, false);
 
         // Then
-        String content = Files.readString(tempMarkdownFile);
-        assertAll(
-                () -> assertTrue(content.contains("Impact:** 4/5 (high)")),
-                () -> assertTrue(content.contains("Confidence:** 3/5 (medium)")),
-                () -> assertTrue(content.contains("Ease:** 2/5 (low)")),
-                () -> assertTrue(content.contains("Reach:** 5/5 (very high)")),
-                () -> assertTrue(content.contains("Effort:** 3/5 (medium)"))
-        );
+        verify(markdownFormatter).formatProject(project3, 1);
+        verify(markdownFormatter).formatProject(project1, 2);
+        verify(markdownFormatter).formatProject(project2, 3);
     }
 }
