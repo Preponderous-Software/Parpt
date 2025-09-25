@@ -1,4 +1,8 @@
 # Parpt - Project Audit & Revenue Prioritization Tool
+
+[![CI Pipeline](https://github.com/Stephenson-Software/Parpt/actions/workflows/ci.yml/badge.svg)](https://github.com/Stephenson-Software/Parpt/actions/workflows/ci.yml)
+[![Build and Test](https://github.com/Stephenson-Software/Parpt/actions/workflows/build.yml/badge.svg)](https://github.com/Stephenson-Software/Parpt/actions/workflows/build.yml)
+
 Parpt is an interactive CLI tool that helps developers, indie creators and teams evaluate and prioritize their software projects using structured metrics like ICE and RICE.
 
 ## Features
